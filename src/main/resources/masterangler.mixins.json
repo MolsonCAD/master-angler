@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "package": "com.molsoncad.masterangler.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "refmap": "masterangler.refmap.json",
+  "mixins": [
+    "MixinAbstractFishEntity",
+    "MixinFishingRodItem",
+    "MixinFollowSchoolLeaderGoal"
+  ],
+  "minVersion": "0.8"
+}

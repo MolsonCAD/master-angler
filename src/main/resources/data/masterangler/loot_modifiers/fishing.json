@@ -1,0 +1,9 @@
+{
+  "conditions": [
+    {
+      "condition": "masterangler:fished_entity",
+      "entity": "this"
+    }
+  ],
+  "special_loot_table": "masterangler:fishing"
+}

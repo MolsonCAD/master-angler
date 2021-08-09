@@ -1,0 +1,10 @@
+{
+  "parent": "item/handheld_rod",
+  "textures": {
+    "layer0": "item/fishing_rod"
+  },
+  "overrides": [
+    { "predicate": { "masterangler:charging": 1 }, "model": "masterangler:item/fishing_rod_charging" },
+    { "predicate": { "cast": 1 }, "model": "item/fishing_rod_cast" }
+  ]
+}

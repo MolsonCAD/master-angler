@@ -1,0 +1,20 @@
+modLoader="javafml"
+loaderVersion="[36,)"
+issueTrackerURL="https://github.com/molsoncad/master-angler/issues"
+license="GNU Lesser General Public License v3"
+
+[[mods]]
+    modId="masterangler"
+    version="${file.jarVersion}"
+    displayName="Master Angler"
+    displayURL="https://minecraft.curseforge.com/projects/master-angler/"
+    logoFile="logo.png"
+    authors="MolsonCAD"
+    description="Master Angler"
+
+[[dependencies.masterangler]]
+    modId="forge"
+    mandatory=true
+    versionRange="[36,)"
+    ordering="NONE"
+    side="BOTH"
