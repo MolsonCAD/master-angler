@@ -1,5 +1,6 @@
 package com.molsoncad.masterangler.mixin;
 
+import com.molsoncad.masterangler.capability.CapabilityFishing;
 import com.molsoncad.masterangler.entity.ai.controller.FishMovementController;
 import com.molsoncad.masterangler.entity.ai.goal.AvoidLivingGoal;
 import com.molsoncad.masterangler.entity.ai.goal.AvoidProjectileGoal;
@@ -58,7 +59,11 @@ public abstract class MixinAbstractFishEntity extends WaterMobEntity
         {
             moveRelative(getSpeed() * SPEED_FACTOR, movement);
             move(MoverType.SELF, getDeltaMovement());
-            setDeltaMovement(getDeltaMovement().scale(0.9));
+
+            if (!getCapability(CapabilityFishing.FISHING_PROPERTIES).orElseThrow(IllegalStateException::new).isCaught())
+            {
+                setDeltaMovement(getDeltaMovement().scale(0.9));
+            }
 
             if (getTarget() == null)
             {

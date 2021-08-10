@@ -179,7 +179,6 @@ public class MasterFishingBobberEntity extends FishingBobberEntity implements IE
             if (isBiting())
             {
                 ExperienceOrbEntity orb = new ExperienceOrbEntity(player.level, player.getX(), player.getY() + 0.5, player.getZ() + 0.5, getExperience());
-                Vector3d destination = new Vector3d(player.getX(), player.getY() + (player.isPassenger() ? 1.0 : 0.0), player.getZ());
                 double gravity = 0.04;
                 double decayXZ = 0.98;
                 double decayY = 0.98;
@@ -194,7 +193,7 @@ public class MasterFishingBobberEntity extends FishingBobberEntity implements IE
                 }
 
                 target.getCapability(CapabilityFishing.FISHING_PROPERTIES).ifPresent(properties -> properties.setCaught(true).setLuck(luck));
-                target.setDeltaMovement(getLaunch(destination, decayXZ, decayY, gravity));
+                target.setDeltaMovement(getLaunch(player.position(), decayXZ, decayY, gravity));
                 player.level.addFreshEntity(orb);
                 player.awardStat(Stats.FISH_CAUGHT);
 
