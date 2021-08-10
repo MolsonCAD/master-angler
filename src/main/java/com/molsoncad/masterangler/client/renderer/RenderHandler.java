@@ -3,21 +3,15 @@ package com.molsoncad.masterangler.client.renderer;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.molsoncad.masterangler.item.IChargeableItem;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.entity.PlayerRenderer;
-import net.minecraft.client.renderer.entity.model.PlayerModel;
 import net.minecraft.client.renderer.model.ItemCameraTransforms.TransformType;
-import net.minecraft.client.renderer.model.ModelRenderer;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.FishingRodItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Hand;
-import net.minecraft.util.HandSide;
 import net.minecraft.util.math.vector.Vector3f;
 import net.minecraftforge.client.event.FOVUpdateEvent;
 import net.minecraftforge.client.event.RenderHandEvent;
-import net.minecraftforge.client.event.RenderPlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 public class RenderHandler
@@ -53,7 +47,7 @@ public class RenderHandler
 
                 applyItemArmTransform(matrixStack, mainHand, event.getEquipProgress());
                 matrixStack.translate(flip * -0.1, power * 0.1, power * 0.1);
-                matrixStack.mulPose(Vector3f.XP.rotationDegrees(power * 27.0F));
+                matrixStack.mulPose(Vector3f.XP.rotationDegrees(power * 40.0F - 12.0F));
                 matrixStack.mulPose(Vector3f.YN.rotationDegrees(flip * 5.0F));
                 matrixStack.mulPose(Vector3f.ZP.rotationDegrees(flip * 2.0F));
                 fovModifier = 1.0F - power * 0.1F;

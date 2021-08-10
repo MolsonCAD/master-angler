@@ -4,9 +4,12 @@ import com.molsoncad.masterangler.entity.MasterFishingBobberEntity;
 import net.minecraft.entity.ai.RandomPositionGenerator;
 import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.passive.fish.AbstractFishEntity;
+import net.minecraft.particles.ParticleTypes;
+import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.world.server.ServerWorld;
 
 import java.util.EnumSet;
 import java.util.List;
@@ -18,8 +21,8 @@ public class LureGoal extends Goal
     private static final double SPIN_SPEED_FACTOR = 1.5;
 
     protected final AbstractFishEntity mob;
-    protected MasterFishingBobberEntity bobber;
     protected final double speedModifier;
+    protected MasterFishingBobberEntity bobber;
     private int timeUntilTimeout;
     private int timeUntilSpinUpdate;
     private double spinRadius;
@@ -58,8 +61,8 @@ public class LureGoal extends Goal
     @Override
     public boolean canContinueToUse()
     {
-        boolean validBobber = bobber != null && bobber.isAlive() && bobber.getTarget() == mob;
-        return (validBobber || wasBiting) && timeUntilTimeout > 0;
+        boolean isBobberValid = bobber != null && bobber.isAlive() && bobber.getTarget() == mob;
+        return (isBobberValid || wasBiting) && timeUntilTimeout > 0;
     }
 
     @Override
@@ -71,7 +74,7 @@ public class LureGoal extends Goal
     @Override
     public void start()
     {
-        timeUntilTimeout = 100;
+        timeUntilTimeout = 160;
         timeUntilSpinUpdate = 10;
         spinRadius = 1.0;
         spinDepth = 0.5;
@@ -99,15 +102,16 @@ public class LureGoal extends Goal
                 spin();
                 return;
             }
-            else if (mob.getNavigation().isDone())
+            else if (mob.getNavigation().isDone() && !wasBiting)
             {
-                --timeUntilTimeout;
                 biteHook();
             }
             else if (!mob.getNavigation().getTargetPos().equals(bobber.blockPosition()))
             {
                 mob.getNavigation().moveTo(bobber, speedModifier);
             }
+
+            --timeUntilTimeout;
         }
 
         if (wasBiting && isInterruptable())
@@ -152,9 +156,17 @@ public class LureGoal extends Goal
 
         if (mob.position().distanceToSqr(bobberPos) < 1.0)
         {
+            ServerWorld world = (ServerWorld) mob.level;
+            float bobberWidth = bobber.getBbWidth();
+            int particleCount = 1 + (int) (bobberWidth * 20.0F);
+
             bobber.setBiting(true);
             wasBiting = true;
             spinPos = bobberPos;
+
+            bobber.playSound(SoundEvents.FISHING_BOBBER_SPLASH, 0.25F, 1.0F + (float) (mob.getRandom().nextGaussian() * 0.4));
+            world.sendParticles(ParticleTypes.BUBBLE, bobberPos.x, bobberPos.y + 0.5, bobberPos.z, particleCount, bobberWidth, 0.0F, bobberWidth, 0.2F);
+            world.sendParticles(ParticleTypes.FISHING, bobberPos.x, bobberPos.y + 0.5, bobberPos.z, particleCount, bobberWidth, 0.0F, bobberWidth, 0.2F);
         }
     }
 }
