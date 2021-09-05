@@ -138,10 +138,15 @@ public class MasterFishingBobberEntity extends FishingBobberEntity implements IE
                         reset();
                     }
                 }
-                else if (timeUntilLuring > 0 && --timeUntilLuring == 0)
+                else if (timeUntilLuring > 0)
                 {
-                    LOGGER.debug("[BOBBER] LURING");
-                    setFishingState(FishingState.LURING);
+                    BlockPos above = blockPosition().above();
+                    timeUntilLuring -= (random.nextFloat() < 0.25F && level.isRainingAt(above)) ? 2 : 1;
+
+                    if (timeUntilLuring <= 0)
+                    {
+                        setFishingState(FishingState.LURING);
+                    }
                 }
             }
 
