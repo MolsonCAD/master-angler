@@ -39,7 +39,7 @@ public class FishMovementController extends MovementController
 
             if (dy != 0.0)
             {
-                double forceY = mob.getSpeed() * (dy / Math.sqrt(distanceSqr)) * 0.1;
+                double forceY = Math.min(mob.getSpeed(), 2.0) * (dy / Math.sqrt(distanceSqr)) * 0.1;
                 mob.setDeltaMovement(mob.getDeltaMovement().add(0.0, forceY, 0.0));
             }
 

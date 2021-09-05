@@ -170,6 +170,12 @@ public class MasterFishingBobberEntity extends FishingBobberEntity implements IE
     }
 
     @Override
+    protected boolean canHitEntity(Entity entity)
+    {
+        return !(entity instanceof AbstractFishEntity) && super.canHitEntity(entity);
+    }
+
+    @Override
     protected void catchingFish(BlockPos pos)
     {
         // Overwrite vanilla catching logic.

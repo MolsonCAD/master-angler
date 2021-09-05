@@ -20,8 +20,8 @@ public class PositionGenerator
 
     public static Vector3d getRandomPosAvoid(CreatureEntity entity, int spread, int height, Vector3d target)
     {
-        target = entity.position().subtract(target);
-        return generateRandomPos(entity, spread, height, 0, target, true, Math.PI / 2.0, entity::getWalkTargetValue, false, 0, 0, true);
+        target = entity.position().subtract(target).normalize().scale(4.0);
+        return generateRandomPos(entity, spread, height, 0, target, true, Math.PI / 4.0, entity::getWalkTargetValue, false, 0, 0, true);
     }
 
     private static Vector3d generateRandomPos(CreatureEntity entity, int spread, int height, int offsetY, Vector3d target, boolean allowWater, double rotation, ToDoubleFunction<BlockPos> walkValueFunction, boolean aboveSolid, int aboveSolidAmount, int aboveSolidOffset, boolean isStable)
