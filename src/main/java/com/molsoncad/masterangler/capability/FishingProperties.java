@@ -8,7 +8,7 @@ public class FishingProperties implements IFishingProperties
     public static final ResourceLocation ID = new ResourceLocation(MasterAngler.MODID, "fishing_properties");
 
     protected boolean caught;
-    protected boolean luring;
+    protected boolean fishing;
     protected float luck;
 
     @Override
@@ -25,15 +25,15 @@ public class FishingProperties implements IFishingProperties
     }
 
     @Override
-    public boolean isLuring()
+    public boolean isFishing()
     {
-        return luring;
+        return fishing;
     }
 
     @Override
-    public IFishingProperties setLuring(boolean luring)
+    public IFishingProperties setFishing(boolean fishing)
     {
-        this.luring = luring;
+        this.fishing = fishing;
         return this;
     }
 

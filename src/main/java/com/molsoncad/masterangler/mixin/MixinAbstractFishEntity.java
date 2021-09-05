@@ -5,7 +5,7 @@ import com.molsoncad.masterangler.entity.ai.controller.FishMovementController;
 import com.molsoncad.masterangler.entity.ai.goal.AvoidLivingGoal;
 import com.molsoncad.masterangler.entity.ai.goal.AvoidProjectileGoal;
 import com.molsoncad.masterangler.entity.ai.goal.FishCaughtGoal;
-import com.molsoncad.masterangler.entity.ai.goal.LureGoal;
+import com.molsoncad.masterangler.entity.ai.goal.FishingGoal;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.MoverType;
 import net.minecraft.entity.ai.goal.PanicGoal;
@@ -45,7 +45,7 @@ public abstract class MixinAbstractFishEntity extends WaterMobEntity
         goalSelector.addGoal(0, new FishCaughtGoal(self, 32));
         goalSelector.addGoal(1, new PanicGoal(self, 3.0));
         goalSelector.addGoal(1, new AvoidProjectileGoal<>(self, ProjectileEntity.class, 4.0, 6.0, AvoidProjectileGoal.MOVING_NO_BOBBER));
-        goalSelector.addGoal(2, new LureGoal(self, 2.0));
+        goalSelector.addGoal(2, new FishingGoal(self, 2.0));
         goalSelector.addGoal(3, new AvoidLivingGoal<>(self, PlayerEntity.class, 6.0, 4.0, 1.0, 6.0));
         goalSelector.addGoal(6, new AbstractFishEntity.SwimGoal(self));
 
@@ -60,10 +60,7 @@ public abstract class MixinAbstractFishEntity extends WaterMobEntity
             moveRelative(getSpeed() * SPEED_FACTOR, movement);
             move(MoverType.SELF, getDeltaMovement());
 
-            if (!getCapability(CapabilityFishing.FISHING_PROPERTIES).orElseThrow(IllegalStateException::new).isCaught())
-            {
-                setDeltaMovement(getDeltaMovement().scale(0.9));
-            }
+            getCapability(CapabilityFishing.FISHING_PROPERTIES).ifPresent(properties -> setDeltaMovement(getDeltaMovement().scale(0.9)));
 
             if (getTarget() == null)
             {

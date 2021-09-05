@@ -21,7 +21,7 @@ public class CapabilityFishing
             {
                 CompoundNBT nbt = new CompoundNBT();
                 nbt.putBoolean("caught", instance.isCaught());
-                nbt.putBoolean("luring", instance.isLuring());
+                nbt.putBoolean("fishing", instance.isFishing());
                 nbt.putFloat("luck", instance.getLuck());
                 return nbt;
             }
@@ -31,7 +31,7 @@ public class CapabilityFishing
             {
                 CompoundNBT nbt = (CompoundNBT) nbtIn;
                 instance.setCaught(nbt.getBoolean("caught"))
-                        .setLuring(nbt.getBoolean("luring"))
+                        .setFishing(nbt.getBoolean("fishing"))
                         .setLuck(nbt.getFloat("luck"));
             }
         }, FishingProperties::new);

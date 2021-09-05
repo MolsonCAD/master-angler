@@ -22,7 +22,7 @@ public abstract class MixinFollowSchoolLeaderGoal extends Goal
     public void onCanUse(CallbackInfoReturnable<Boolean> cir)
     {
         mob.getCapability(CapabilityFishing.FISHING_PROPERTIES).ifPresent(properties -> {
-            if (properties.isLuring() || properties.isCaught())
+            if (properties.isFishing() || properties.isCaught())
             {
                 cir.setReturnValue(false);
             }
@@ -33,6 +33,6 @@ public abstract class MixinFollowSchoolLeaderGoal extends Goal
     public void onCanContinueToUse(CallbackInfoReturnable<Boolean> cir)
     {
         mob.getCapability(CapabilityFishing.FISHING_PROPERTIES).ifPresent(properties ->
-                cir.setReturnValue(cir.getReturnValue() && !properties.isLuring() && !properties.isCaught()));
+                cir.setReturnValue(cir.getReturnValue() && !properties.isFishing() && !properties.isCaught()));
     }
 }

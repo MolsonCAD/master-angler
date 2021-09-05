@@ -2,12 +2,19 @@ package com.molsoncad.masterangler.entity;
 
 import com.google.common.collect.ImmutableList;
 import com.molsoncad.masterangler.capability.CapabilityFishing;
+import com.molsoncad.masterangler.client.audio.ReelingTickableSound;
+import com.molsoncad.masterangler.entity.ai.controller.FishingController;
+import com.molsoncad.masterangler.item.FishingRodTier;
+import com.molsoncad.masterangler.item.ITieredFishingRodItem;
 import net.minecraft.advancements.CriteriaTriggers;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.item.ExperienceOrbEntity;
 import net.minecraft.entity.item.ItemEntity;
+import net.minecraft.entity.passive.fish.AbstractFishEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.entity.projectile.FishingBobberEntity;
@@ -38,23 +45,23 @@ import java.util.Objects;
 public class MasterFishingBobberEntity extends FishingBobberEntity implements IEntityAdditionalSpawnData
 {
     private static final DataParameter<Integer> DATA_TARGET_ENTITY = EntityDataManager.defineId(MasterFishingBobberEntity.class, DataSerializers.INT);
-    private static final DataParameter<Boolean> DATA_LURING = EntityDataManager.defineId(MasterFishingBobberEntity.class, DataSerializers.BOOLEAN);
-    private static final DataParameter<Boolean> DATA_BITING = EntityDataManager.defineId(MasterFishingBobberEntity.class, DataSerializers.BOOLEAN);
+    private static final DataParameter<Integer> DATA_FISHING_STATE = EntityDataManager.defineId(MasterFishingBobberEntity.class, DataSerializers.INT);
 
     private static final List<ItemStack> DUMMY_LOOT = ImmutableList.of(new ItemStack(Items.SALMON));
     private static final Logger LOGGER = LogManager.getLogger();
 
-    protected ItemStack rod;
-    protected Entity target;
-    private boolean luring;
-    private boolean biting;
+    private AbstractFishEntity target;
+    private FishingState fishingState;
+    private Vector3d biteOrigin;
     private int timeUntilLuring;
     private int timeUntilEscape;
+    private final FishingController fishingController;
 
-    public MasterFishingBobberEntity(PlayerEntity player, World world, @Nullable ItemStack rod, int luck, int speed)
+    public MasterFishingBobberEntity(PlayerEntity player, World world, @Nullable ITieredFishingRodItem rod, int luck, int speed)
     {
         super(player, world, luck, speed);
-        this.rod = rod;
+        this.biteOrigin = Vector3d.ZERO;
+        this.fishingController = new FishingController(this, rod == null ? FishingRodTier.WOOD : rod.getTier());
         reset();
     }
 
@@ -63,7 +70,6 @@ public class MasterFishingBobberEntity extends FishingBobberEntity implements IE
         PacketBuffer buffer = packet.getAdditionalData();
         PlayerEntity player = world.getPlayerByUUID(buffer.readUUID());
 
-        // Ignore luck and speed since those aren't used on the client side.
         return new MasterFishingBobberEntity(Objects.requireNonNull(player), world, null, 0, 0);
     }
 
@@ -73,8 +79,7 @@ public class MasterFishingBobberEntity extends FishingBobberEntity implements IE
         super.defineSynchedData();
 
         getEntityData().define(DATA_TARGET_ENTITY, 0);
-        getEntityData().define(DATA_LURING, false);
-        getEntityData().define(DATA_BITING, false);
+        getEntityData().define(DATA_FISHING_STATE, 0);
     }
 
     @Override
@@ -85,23 +90,25 @@ public class MasterFishingBobberEntity extends FishingBobberEntity implements IE
         if (DATA_TARGET_ENTITY.equals(parameter))
         {
             int id = getEntityData().get(DATA_TARGET_ENTITY) - 1;
+            Entity entity = id >= 0 ? level.getEntity(id) : null;
 
-            setTargetRaw(null);
+            setTargetRaw(entity instanceof AbstractFishEntity ? (AbstractFishEntity) entity : null);
+        }
+        else if (DATA_FISHING_STATE.equals(parameter))
+        {
+            FishingState state = FishingState.getValue(getEntityData().get(DATA_FISHING_STATE));
+            PlayerEntity player = getPlayerOwner();
 
-            if (id >= 0)
+            if (state == FishingState.BITING)
             {
-                setTargetRaw(level.getEntity(id));
+                biteOrigin = position();
             }
-        }
+            else if (level.isClientSide() && player != null && state == FishingState.HOOKED && fishingState != FishingState.HOOKED)
+            {
+                Minecraft.getInstance().getSoundManager().play(new ReelingTickableSound((ClientPlayerEntity) player, this));
+            }
 
-        if (DATA_LURING.equals(parameter))
-        {
-            luring = getEntityData().get(DATA_LURING);
-        }
-
-        if (DATA_BITING.equals(parameter))
-        {
-            biting = getEntityData().get(DATA_BITING);
+            fishingState = state;
         }
     }
 
@@ -120,13 +127,7 @@ public class MasterFishingBobberEntity extends FishingBobberEntity implements IE
     {
         PlayerEntity player = getPlayerOwner();
 
-        if (!level.isClientSide() && player != null && !isHoldingRod(player))
-        {
-            remove();
-            return;
-        }
-
-        if (currentState == State.BOBBING)
+        if (player != null && !shouldStopFishing(player) && currentState == State.BOBBING)
         {
             if (!level.isClientSide())
             {
@@ -140,26 +141,27 @@ public class MasterFishingBobberEntity extends FishingBobberEntity implements IE
                 else if (timeUntilLuring > 0 && --timeUntilLuring == 0)
                 {
                     LOGGER.debug("[BOBBER] LURING");
-                    getEntityData().set(DATA_LURING, true);
+                    setFishingState(FishingState.LURING);
                 }
             }
 
-            if (isBiting())
+            if (target != null && (isBiting() || isHooked()))
             {
                 Vector3d lookOffset = target.getLookAngle().scale(target.getBbWidth() - 0.2);
                 Vector3d mouthPos = target.getEyePosition(1.0F).add(lookOffset);
 
                 setPos(mouthPos.x, mouthPos.y + 0.2, mouthPos.z);
+
+                if (!level.isClientSide())
+                {
+                    fishingController.tick();
+                }
+
                 return;
             }
         }
 
         super.tick();
-    }
-
-    private boolean isHoldingRod(PlayerEntity player)
-    {
-        return player.getMainHandItem() == rod || player.getOffhandItem() == rod;
     }
 
     @Override
@@ -176,21 +178,14 @@ public class MasterFishingBobberEntity extends FishingBobberEntity implements IE
 
         if (!level.isClientSide() && player != null)
         {
-            if (isBiting())
+            if (target != null && isHooked())
             {
                 ExperienceOrbEntity orb = new ExperienceOrbEntity(player.level, player.getX(), player.getY() + 0.5, player.getZ() + 0.5, getExperience());
-                double gravity = 0.04;
-                double decayXZ = 0.98;
+                double gravity = target.hasEffect(Effects.SLOW_FALLING) ? 0.01 : target.getAttributeValue(ForgeMod.ENTITY_GRAVITY.get());
+                double decayXZ = 0.91;
                 double decayY = 0.98;
 
-                if (target instanceof LivingEntity)
-                {
-                    LivingEntity living = (LivingEntity) target;
-                    gravity = living.hasEffect(Effects.SLOW_FALLING) ? 0.01 : living.getAttributeValue(ForgeMod.ENTITY_GRAVITY.get());
-                    decayXZ = 0.91;
-
-                    CriteriaTriggers.FISHING_ROD_HOOKED.trigger((ServerPlayerEntity) player, stack, this, DUMMY_LOOT);
-                }
+                CriteriaTriggers.FISHING_ROD_HOOKED.trigger((ServerPlayerEntity) player, stack, this, DUMMY_LOOT);
 
                 target.getCapability(CapabilityFishing.FISHING_PROPERTIES).ifPresent(properties -> properties.setCaught(true).setLuck(luck));
                 target.setDeltaMovement(getLaunch(player.position(), decayXZ, decayY, gravity));
@@ -212,13 +207,13 @@ public class MasterFishingBobberEntity extends FishingBobberEntity implements IE
     /**
      * Calculates the delta movement launch vector for an entity, which will land it at a given destination.
      * The equations used are derived from the {@link LivingEntity} (and {@link ItemEntity}) mid-air
-     * position update logic, which boils down to:
+     * delta movement update logic, which boils down to:
      * <pre>
      * x = xo * decayXZ
      * y = (yo - gravity) * decayY
      * z = zo * decayXZ
      * </pre>
-     * where (xo, yo, zo) is the last delta position and (x, y, z) is the current delta position. The
+     * where (xo, yo, zo) is the last delta movement and (x, y, z) is the current delta movement. The
      * decay values are effectively the air resistance in each direction.<br>
      * <br>
      * <b>Warning:</b> entities using more sophisticated position update logic than the model
@@ -255,16 +250,10 @@ public class MasterFishingBobberEntity extends FishingBobberEntity implements IE
         return random.nextInt(6) + 1;
     }
 
-    protected void reset()
+    public void reset()
     {
-        if (target != null)
-        {
-            target.getCapability(CapabilityFishing.FISHING_PROPERTIES).ifPresent(properties -> properties.setLuring(false));
-        }
-
         setTarget(null);
-        getEntityData().set(DATA_LURING, false);
-        getEntityData().set(DATA_BITING, false);
+        setFishingState(FishingState.IDLE);
 
         timeUntilLuring = MathHelper.nextInt(random, 100, 600 - lureSpeed * 100);
         timeUntilEscape = MathHelper.nextInt(random, 40, 80);
@@ -275,19 +264,44 @@ public class MasterFishingBobberEntity extends FishingBobberEntity implements IE
         }
     }
 
+    public boolean isAvailable()
+    {
+        return fishingState == FishingState.LURING && target == null;
+    }
+
     public boolean isLuring()
     {
-        return luring && target == null;
+        return fishingState == FishingState.LURING;
+    }
+
+    public boolean isHooked()
+    {
+        return fishingState == FishingState.HOOKED;
+    }
+
+    public void setHooked()
+    {
+        setFishingState(FishingState.HOOKED);
     }
 
     public boolean isBiting()
     {
-        return biting && target != null;
+        return fishingState == FishingState.BITING;
     }
 
-    public void setBiting(boolean biting)
+    public void setBiting()
     {
-        getEntityData().set(DATA_BITING, biting);
+        setFishingState(FishingState.BITING);
+    }
+
+    public Vector3d getBiteOrigin()
+    {
+        return biteOrigin;
+    }
+
+    public FishingController getFishingController()
+    {
+        return fishingController;
     }
 
     @Nullable
@@ -296,24 +310,30 @@ public class MasterFishingBobberEntity extends FishingBobberEntity implements IE
         return target;
     }
 
-    public void setTarget(@Nullable Entity entity)
+    public void setTarget(@Nullable AbstractFishEntity entity)
     {
         getEntityData().set(DATA_TARGET_ENTITY, entity != null ? entity.getId() + 1 : 0);
     }
 
-    protected void setTargetRaw(@Nullable Entity entity)
+    protected void setTargetRaw(@Nullable AbstractFishEntity entity)
     {
         if (target != null)
         {
-            target.getCapability(CapabilityFishing.FISHING_PROPERTIES).ifPresent(properties -> properties.setLuring(false));
+            target.getCapability(CapabilityFishing.FISHING_PROPERTIES).ifPresent(properties -> properties.setFishing(false));
         }
 
         target = entity;
+        fishingController.setFish(target);
 
         if (target != null)
         {
-            target.getCapability(CapabilityFishing.FISHING_PROPERTIES).ifPresent(properties -> properties.setLuring(true));
+            target.getCapability(CapabilityFishing.FISHING_PROPERTIES).ifPresent(properties -> properties.setFishing(true));
         }
+    }
+
+    protected void setFishingState(FishingState state)
+    {
+        getEntityData().set(DATA_FISHING_STATE, state.getId());
     }
 
     @Override
@@ -326,5 +346,31 @@ public class MasterFishingBobberEntity extends FishingBobberEntity implements IE
     public IPacket<?> getAddEntityPacket()
     {
         return NetworkHooks.getEntitySpawningPacket(this);
+    }
+
+    protected enum FishingState
+    {
+        IDLE(0),
+        LURING(1),
+        BITING(2),
+        HOOKED(3);
+
+        private static final FishingState[] VALUES = values();
+        private final int id;
+
+        FishingState(int id)
+        {
+            this.id = id;
+        }
+
+        public static FishingState getValue(int id)
+        {
+            return VALUES[id];
+        }
+
+        public int getId()
+        {
+            return id;
+        }
     }
 }

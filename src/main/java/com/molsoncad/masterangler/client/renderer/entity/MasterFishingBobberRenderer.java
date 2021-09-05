@@ -80,8 +80,12 @@ public class MasterFishingBobberRenderer extends EntityRenderer<MasterFishingBob
                 player == Minecraft.getInstance().player)
             {
                 double fov = entityRenderDispatcher.options.fov / 100.0;
+                double xo = -0.45 + (entity.isHooked() ? 0.08 : 0.0);
 
-                Vector3d rod = new Vector3d(flip * fov * -0.42, fov * -0.042, 0.4)
+                // This fov scaling is kinda silly, but it's good enough
+                fov = (0.75 * fov * fov) + (0.15 * fov) + 0.1;
+
+                Vector3d rod = new Vector3d(flip * fov * xo, fov * -0.045, 0.38)
                         .xRot(-MathHelper.lerp(partialTicks, player.xRotO, player.xRot) * DEG_TO_RAD)
                         .yRot(-MathHelper.lerp(partialTicks, player.yRotO, player.yRot) * DEG_TO_RAD)
                         .yRot(animRot * 0.5F)
@@ -114,14 +118,15 @@ public class MasterFishingBobberRenderer extends EntityRenderer<MasterFishingBob
             float deltaX = (float) (playerX - entityX);
             float deltaY = (float) (playerY - entityY);
             float deltaZ = (float) (playerZ - entityZ);
+            boolean hooked = entity.isHooked();
 
             builder = buffer.getBuffer(RenderType.lines());
             pose = matrixStack.last().pose();
 
             for (int i = 0; i < segments; ++i)
             {
-                lineVertex(builder, pose, deltaX, deltaY, deltaZ, (float) i / segments);
-                lineVertex(builder, pose, deltaX, deltaY, deltaZ, (float) (i + 1) / segments);
+                lineVertex(builder, pose, deltaX, deltaY, deltaZ, (float) i / segments, hooked);
+                lineVertex(builder, pose, deltaX, deltaY, deltaZ, (float) (i + 1) / segments, hooked);
             }
         }
 
@@ -142,9 +147,11 @@ public class MasterFishingBobberRenderer extends EntityRenderer<MasterFishingBob
                 .endVertex();
     }
 
-    private static void lineVertex(IVertexBuilder builder, Matrix4f pose, float x, float y, float z, float part)
+    private static void lineVertex(IVertexBuilder builder, Matrix4f pose, float x, float y, float z, float part, boolean hooked)
     {
-        builder.vertex(pose, x * part, y * (part * part + part) * 0.5F + 0.25F, z * part)
+        float partY = hooked ? part : (part * part + part) * 0.5F;
+
+        builder.vertex(pose, x * part, y * partY + 0.25F, z * part)
                 .color(0, 0, 0, 255)
                 .endVertex();
     }

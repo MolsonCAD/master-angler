@@ -6,9 +6,9 @@ public interface IFishingProperties
 
     IFishingProperties setCaught(boolean caught);
 
-    boolean isLuring();
+    boolean isFishing();
 
-    IFishingProperties setLuring(boolean luring);
+    IFishingProperties setFishing(boolean fishing);
 
     float getLuck();
 

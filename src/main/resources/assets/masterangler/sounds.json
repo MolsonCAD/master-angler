@@ -1,0 +1,12 @@
+{
+  "reeling": {
+    "sounds": [
+      {
+        "name": "masterangler:reeling",
+        "attenuation_distance": 8,
+        "volume": 0.25
+      }
+    ],
+    "subtitle": "masterangler.subtitles.reeling"
+  }
+}
