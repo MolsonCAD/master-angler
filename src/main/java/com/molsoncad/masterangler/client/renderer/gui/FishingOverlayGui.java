@@ -34,14 +34,14 @@ public class FishingOverlayGui extends AbstractGui
     {
         PlayerEntity player = minecraft.player;
 
-        if (player != null && player.fishing instanceof MasterFishingBobberEntity)
+        if (player != null && player.fishing instanceof MasterFishingBobberEntity && minecraft.gameMode != null)
         {
             MasterFishingBobberEntity bobber = (MasterFishingBobberEntity) player.fishing;
 
             if (bobber.isAlive() && bobber.isHooked())
             {
                 int screenX = (window.getGuiScaledWidth() / 2) - (BAR_WIDTH / 2);
-                int screenY = 12;
+                int screenY = window.getGuiScaledHeight() - (BAR_HEIGHT * 2) - (minecraft.gameMode.canHurtPlayer() ? 51 : 41);
 
                 RenderSystem.defaultBlendFunc();
                 RenderSystem.enableBlend();
