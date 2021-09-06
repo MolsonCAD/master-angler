@@ -1,6 +1,6 @@
 package com.molsoncad.masterangler.mixin;
 
-import com.molsoncad.masterangler.capability.CapabilityFishing;
+import com.molsoncad.masterangler.entity.IFishingProperties;
 import com.molsoncad.masterangler.entity.ai.controller.FishMovementController;
 import com.molsoncad.masterangler.entity.ai.goal.AvoidLivingGoal;
 import com.molsoncad.masterangler.entity.ai.goal.AvoidProjectileGoal;
@@ -15,15 +15,20 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
+import net.minecraftforge.common.ForgeMod;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(AbstractFishEntity.class)
-public abstract class MixinAbstractFishEntity extends WaterMobEntity
+public abstract class MixinAbstractFishEntity extends WaterMobEntity implements IFishingProperties
 {
     private static final float SPEED_FACTOR = 0.01F;
+
+    private boolean fishing;
+    private boolean caught;
+    private float luck;
 
     private MixinAbstractFishEntity(EntityType<? extends AbstractFishEntity> type, World world)
     {
@@ -60,7 +65,17 @@ public abstract class MixinAbstractFishEntity extends WaterMobEntity
             moveRelative(getSpeed() * SPEED_FACTOR, movement);
             move(MoverType.SELF, getDeltaMovement());
 
-            getCapability(CapabilityFishing.FISHING_PROPERTIES).ifPresent(properties -> setDeltaMovement(getDeltaMovement().scale(0.9)));
+            if (isCaught())
+            {
+                // Mimic movement through air for accurate launch calculations
+                setDeltaMovement(getDeltaMovement()
+                        .subtract(0.0, getAttributeValue(ForgeMod.ENTITY_GRAVITY.get()), 0.0)
+                        .multiply(0.91, 0.98, 0.91));
+            }
+            else
+            {
+                setDeltaMovement(getDeltaMovement().scale(0.9));
+            }
 
             if (getTarget() == null)
             {
@@ -73,5 +88,47 @@ public abstract class MixinAbstractFishEntity extends WaterMobEntity
         }
 
         ci.cancel();
+    }
+
+    @Override
+    public boolean canBeFished(long daytime)
+    {
+        return true;
+    }
+
+    @Override
+    public boolean isFishing()
+    {
+        return fishing;
+    }
+
+    @Override
+    public void setFishing(boolean fishing)
+    {
+        this.fishing = fishing;
+    }
+
+    @Override
+    public boolean isCaught()
+    {
+        return caught;
+    }
+
+    @Override
+    public void setCaught(boolean caught)
+    {
+        this.caught = caught;
+    }
+
+    @Override
+    public float getLuck()
+    {
+        return luck;
+    }
+
+    @Override
+    public void setLuck(float luck)
+    {
+        this.luck = luck;
     }
 }

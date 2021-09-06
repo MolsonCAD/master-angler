@@ -1,8 +1,7 @@
 package com.molsoncad.masterangler.loot;
 
 import com.google.gson.JsonObject;
-import com.molsoncad.masterangler.capability.CapabilityFishing;
-import com.molsoncad.masterangler.capability.IFishingProperties;
+import com.molsoncad.masterangler.entity.IFishingProperties;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.loot.LootContext;
@@ -13,12 +12,10 @@ import net.minecraft.util.JSONUtils;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.loot.GlobalLootModifierSerializer;
 import net.minecraftforge.common.loot.LootModifier;
-import net.minecraftforge.event.entity.player.ItemFishedEvent;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 public class FishingLootModifier extends LootModifier
 {
@@ -36,27 +33,22 @@ public class FishingLootModifier extends LootModifier
     {
         Entity entity = context.getParamOrNull(LootParameters.THIS_ENTITY);
 
-        if (entity != null)
+        if (entity instanceof IFishingProperties)
         {
-            Optional<IFishingProperties> capability = entity.getCapability(CapabilityFishing.FISHING_PROPERTIES).resolve();
+            IFishingProperties properties = (IFishingProperties) entity;
 
-            if (capability.isPresent())
+            if (properties.isCaught())
             {
-                IFishingProperties properties = capability.get();
+                List<ItemStack> specialLoot = new ArrayList<>();
 
-                if (properties.isCaught())
+                context = new LootContext.Builder(context)
+                        .withLuck(properties.getLuck() + context.getLuck())
+                        .create(LootParameterSets.ENTITY);
+                context.getLootTable(specialLootTable).getRandomItems(context, specialLoot::add);
+
+                if (!specialLoot.isEmpty())
                 {
-                    List<ItemStack> specialLoot = new ArrayList<>();
-
-                    context = new LootContext.Builder(context)
-                            .withLuck(properties.getLuck() + context.getLuck())
-                            .create(LootParameterSets.ENTITY);
-                    context.getLootTable(specialLootTable).getRandomItems(context, specialLoot::add);
-
-                    if (!specialLoot.isEmpty())
-                    {
-                        generatedLoot = specialLoot;
-                    }
+                    generatedLoot = specialLoot;
                 }
             }
         }

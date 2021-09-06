@@ -4,8 +4,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSerializationContext;
-import com.molsoncad.masterangler.capability.CapabilityFishing;
-import com.molsoncad.masterangler.capability.IFishingProperties;
+import com.molsoncad.masterangler.entity.IFishingProperties;
 import com.molsoncad.masterangler.loot.MALootConditions;
 import net.minecraft.entity.Entity;
 import net.minecraft.loot.ILootSerializer;
@@ -15,7 +14,6 @@ import net.minecraft.loot.LootParameter;
 import net.minecraft.loot.conditions.ILootCondition;
 import net.minecraft.util.JSONUtils;
 
-import java.util.Optional;
 import java.util.Set;
 
 public class FishedEntity implements ILootCondition
@@ -43,14 +41,7 @@ public class FishedEntity implements ILootCondition
     public boolean test(LootContext context)
     {
         Entity entity = context.getParamOrNull(target.getParam());
-
-        if (entity != null)
-        {
-            Optional<IFishingProperties> capability = entity.getCapability(CapabilityFishing.FISHING_PROPERTIES).resolve();
-            return capability.isPresent() && capability.get().isCaught();
-        }
-
-        return false;
+        return entity instanceof IFishingProperties && ((IFishingProperties) entity).isCaught();
     }
 
     public static class Serializer implements ILootSerializer<FishedEntity>

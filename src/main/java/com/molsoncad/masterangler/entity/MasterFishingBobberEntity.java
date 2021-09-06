@@ -1,7 +1,6 @@
 package com.molsoncad.masterangler.entity;
 
 import com.google.common.collect.ImmutableList;
-import com.molsoncad.masterangler.capability.CapabilityFishing;
 import com.molsoncad.masterangler.client.audio.ReelingTickableSound;
 import com.molsoncad.masterangler.entity.ai.controller.FishingController;
 import com.molsoncad.masterangler.item.FishingRodTier;
@@ -191,6 +190,7 @@ public class MasterFishingBobberEntity extends FishingBobberEntity implements IE
         {
             if (target != null && isHooked())
             {
+                IFishingProperties properties = (IFishingProperties) target;
                 ExperienceOrbEntity orb = new ExperienceOrbEntity(player.level, player.getX(), player.getY() + 0.5, player.getZ() + 0.5, getExperience());
                 double gravity = target.hasEffect(Effects.SLOW_FALLING) ? 0.01 : target.getAttributeValue(ForgeMod.ENTITY_GRAVITY.get());
                 double decayXZ = 0.91;
@@ -198,8 +198,9 @@ public class MasterFishingBobberEntity extends FishingBobberEntity implements IE
 
                 CriteriaTriggers.FISHING_ROD_HOOKED.trigger((ServerPlayerEntity) player, stack, this, DUMMY_LOOT);
 
-                target.getCapability(CapabilityFishing.FISHING_PROPERTIES).ifPresent(properties -> properties.setCaught(true).setLuck(luck));
                 target.setDeltaMovement(getLaunch(player.position(), decayXZ, decayY, gravity));
+                properties.setCaught(true);
+                properties.setLuck(luck);
                 player.level.addFreshEntity(orb);
                 player.awardStat(Stats.FISH_CAUGHT);
 
@@ -330,7 +331,7 @@ public class MasterFishingBobberEntity extends FishingBobberEntity implements IE
     {
         if (target != null)
         {
-            target.getCapability(CapabilityFishing.FISHING_PROPERTIES).ifPresent(properties -> properties.setFishing(false));
+            ((IFishingProperties) target).setFishing(false);
         }
 
         target = entity;
@@ -338,13 +339,20 @@ public class MasterFishingBobberEntity extends FishingBobberEntity implements IE
 
         if (target != null)
         {
-            target.getCapability(CapabilityFishing.FISHING_PROPERTIES).ifPresent(properties -> properties.setFishing(true));
+            ((IFishingProperties) target).setFishing(true);
         }
     }
 
     protected void setFishingState(FishingState state)
     {
         getEntityData().set(DATA_FISHING_STATE, state.getId());
+    }
+
+    @Override
+    public void remove(boolean keepData)
+    {
+        super.remove(keepData);
+        setTargetRaw(null);
     }
 
     @Override

@@ -1,6 +1,6 @@
 package com.molsoncad.masterangler.mixin;
 
-import com.molsoncad.masterangler.capability.CapabilityFishing;
+import com.molsoncad.masterangler.entity.IFishingProperties;
 import net.minecraft.entity.ai.goal.FollowSchoolLeaderGoal;
 import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.passive.fish.AbstractGroupFishEntity;
@@ -21,18 +21,18 @@ public abstract class MixinFollowSchoolLeaderGoal extends Goal
     @Inject(method = "canUse", at = @At("HEAD"), cancellable = true)
     public void onCanUse(CallbackInfoReturnable<Boolean> cir)
     {
-        mob.getCapability(CapabilityFishing.FISHING_PROPERTIES).ifPresent(properties -> {
-            if (properties.isFishing() || properties.isCaught())
-            {
-                cir.setReturnValue(false);
-            }
-        });
+        IFishingProperties properties = (IFishingProperties) mob;
+
+        if (properties.isFishing() || properties.isCaught())
+        {
+            cir.setReturnValue(false);
+        }
     }
 
     @Inject(method = "canContinueToUse", at = @At("RETURN"), cancellable = true)
     public void onCanContinueToUse(CallbackInfoReturnable<Boolean> cir)
     {
-        mob.getCapability(CapabilityFishing.FISHING_PROPERTIES).ifPresent(properties ->
-                cir.setReturnValue(cir.getReturnValue() && !properties.isFishing() && !properties.isCaught()));
+        IFishingProperties properties = (IFishingProperties) mob;
+        cir.setReturnValue(cir.getReturnValue() && !properties.isFishing() && !properties.isCaught());
     }
 }

@@ -1,5 +1,6 @@
 package com.molsoncad.masterangler.entity.ai.goal;
 
+import com.molsoncad.masterangler.entity.IFishingProperties;
 import com.molsoncad.masterangler.entity.MasterFishingBobberEntity;
 import net.minecraft.entity.ai.RandomPositionGenerator;
 import net.minecraft.entity.ai.goal.Goal;
@@ -34,17 +35,20 @@ public class FishingGoal extends Goal
     @Override
     public boolean canUse()
     {
-        AxisAlignedBB aabb = mob.getBoundingBox().inflate(16.0);
-        List<MasterFishingBobberEntity> bobbers = mob.level.getEntitiesOfClass(MasterFishingBobberEntity.class, aabb, (bobber) ->
-                bobber.isAvailable() && mob.getRandom().nextDouble() < 0.33 && mob.canSee(bobber)
-        );
-
-        if (!bobbers.isEmpty())
+        if (((IFishingProperties) mob).canBeFished(mob.level.getDayTime()))
         {
-            bobber = bobbers.get(mob.getRandom().nextInt(bobbers.size()));
-            bobber.setTarget(mob);
+            AxisAlignedBB aabb = mob.getBoundingBox().inflate(16.0);
+            List<MasterFishingBobberEntity> bobbers = mob.level.getEntitiesOfClass(MasterFishingBobberEntity.class, aabb, (bobber) ->
+                    bobber.isAvailable() && mob.getRandom().nextDouble() < 0.33 && mob.canSee(bobber)
+            );
 
-            return mob.getNavigation().moveTo(bobber, speedModifier);
+            if (!bobbers.isEmpty())
+            {
+                bobber = bobbers.get(mob.getRandom().nextInt(bobbers.size()));
+                bobber.setTarget(mob);
+
+                return mob.getNavigation().moveTo(bobber, speedModifier);
+            }
         }
 
         return false;
