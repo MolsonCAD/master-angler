@@ -13,6 +13,7 @@ import net.minecraft.entity.passive.WaterMobEntity;
 import net.minecraft.entity.passive.fish.AbstractFishEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
+import net.minecraft.potion.Effects;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeMod;
@@ -67,9 +68,11 @@ public abstract class MixinAbstractFishEntity extends WaterMobEntity implements 
 
             if (isCaught())
             {
+                double gravity = hasEffect(Effects.SLOW_FALLING) ? getAttributeBaseValue(ForgeMod.ENTITY_GRAVITY.get()) : getAttributeValue(ForgeMod.ENTITY_GRAVITY.get());
+
                 // Mimic movement through air for accurate launch calculations
                 setDeltaMovement(getDeltaMovement()
-                        .subtract(0.0, getAttributeValue(ForgeMod.ENTITY_GRAVITY.get()), 0.0)
+                        .subtract(0.0, gravity, 0.0)
                         .multiply(0.91, 0.98, 0.91));
             }
             else

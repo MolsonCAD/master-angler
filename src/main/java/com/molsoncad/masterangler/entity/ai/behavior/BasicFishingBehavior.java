@@ -20,7 +20,7 @@ public class BasicFishingBehavior extends FishingBehavior
 {
     private static final float TENSION_DEFAULT = 0.2F;
     private static final float REST_THRESHOLD = 0.2F;
-    private static final float CLOSENESS_GAP_SQR = 9.0F;
+    private static final float CLOSENESS_GAP_SQR = 16.0F;
     private static final float CLOSENESS_RANGE_SQR = 81.0F;
 
     private static final float SWIM_SPEED = 0.01F;

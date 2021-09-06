@@ -192,7 +192,7 @@ public class MasterFishingBobberEntity extends FishingBobberEntity implements IE
             {
                 IFishingProperties properties = (IFishingProperties) target;
                 ExperienceOrbEntity orb = new ExperienceOrbEntity(player.level, player.getX(), player.getY() + 0.5, player.getZ() + 0.5, getExperience());
-                double gravity = target.hasEffect(Effects.SLOW_FALLING) ? 0.01 : target.getAttributeValue(ForgeMod.ENTITY_GRAVITY.get());
+                double gravity = target.hasEffect(Effects.SLOW_FALLING) ? target.getAttributeBaseValue(ForgeMod.ENTITY_GRAVITY.get()) : target.getAttributeValue(ForgeMod.ENTITY_GRAVITY.get());
                 double decayXZ = 0.91;
                 double decayY = 0.98;
 
