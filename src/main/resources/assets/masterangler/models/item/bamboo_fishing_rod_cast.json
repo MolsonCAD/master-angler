@@ -1,0 +1,6 @@
+{
+  "parent": "masterangler:item/bamboo_fishing_rod",
+  "textures": {
+    "layer0": "masterangler:item/bamboo_fishing_rod_cast"
+  }
+}

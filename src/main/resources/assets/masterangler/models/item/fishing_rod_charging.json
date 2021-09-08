@@ -1,6 +1,0 @@
-{
-  "parent": "masterangler:item/fishing_rod",
-  "textures": {
-    "layer0": "masterangler:item/fishing_rod_charging"
-  }
-}

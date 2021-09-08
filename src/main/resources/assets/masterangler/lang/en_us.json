@@ -1,3 +1,10 @@
 {
+  "item.masterangler.bone_fishing_rod": "Bone Fishing Rod",
+  "item.masterangler.bamboo_fishing_rod": "Bamboo Fishing Rod",
+  "item.masterangler.scute_fishing_rod": "Turtle Fishing Rod",
+  "item.masterangler.celestium_fishing_rod": "Celestium Fishing Rod",
+  "item.masterangler.celestium_fragment": "Celestium Fragment",
+  "item.masterangler.celestium_ingot": "Celestium Ingot",
+  "item.masterangler.blooming_heart_of_the_sea": "Blooming Heart of the Sea",
   "masterangler.subtitles.reeling": "Reeling"
 }

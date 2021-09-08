@@ -1,0 +1,47 @@
+{
+  "parent": "minecraft:recipes/root",
+  "rewards": {
+    "recipes": [
+      "masterangler:celestium_fragment"
+    ]
+  },
+  "criteria": {
+    "has_blooming_heart_of_the_sea": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "masterangler:blooming_heart_of_the_sea"
+            ]
+          }
+        ]
+      }
+    },
+    "has_prismarine_shard": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "minecraft:prismarine_shard"
+            ]
+          }
+        ]
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "masterangler:celestium_fragment"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_blooming_heart_of_the_sea",
+      "has_prismarine_shard",
+      "has_the_recipe"
+    ]
+  ]
+}

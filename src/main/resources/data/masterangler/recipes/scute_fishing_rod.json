@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "  X",
+    " X#",
+    "X #"
+  ],
+  "key": {
+    "X": {
+      "item": "minecraft:scute"
+    },
+    "#": {
+      "item": "minecraft:string"
+    }
+  },
+  "result": {
+    "item": "masterangler:scute_fishing_rod"
+  }
+}

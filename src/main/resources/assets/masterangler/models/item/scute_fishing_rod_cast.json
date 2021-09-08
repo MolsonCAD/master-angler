@@ -1,0 +1,6 @@
+{
+  "parent": "masterangler:item/scute_fishing_rod",
+  "textures": {
+    "layer0": "masterangler:item/scute_fishing_rod_cast"
+  }
+}

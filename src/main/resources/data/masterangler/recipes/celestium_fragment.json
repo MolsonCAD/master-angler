@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " S ",
+    "SBS",
+    " S "
+  ],
+  "key": {
+    "B": {
+      "item": "masterangler:blooming_heart_of_the_sea"
+    },
+    "S": {
+      "item": "minecraft:prismarine_shard"
+    }
+  },
+  "result": {
+    "item": "masterangler:celestium_fragment"
+  }
+}

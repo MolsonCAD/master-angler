@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:blasting",
+  "ingredient": {
+    "item": "minecraft:heart_of_the_sea"
+  },
+  "result": "masterangler:blooming_heart_of_the_sea",
+  "experience": 2.0,
+  "cookingtime": 80
+}

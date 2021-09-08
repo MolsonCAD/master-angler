@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:smithing",
+  "base": {
+    "item": "masterangler:scute_fishing_rod"
+  },
+  "addition": {
+    "item": "masterangler:celestium_ingot"
+  },
+  "result": {
+    "item": "masterangler:celestium_fishing_rod"
+  }
+}

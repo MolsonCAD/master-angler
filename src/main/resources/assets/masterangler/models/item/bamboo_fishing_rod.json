@@ -1,0 +1,12 @@
+{
+  "parent": "item/handheld_rod",
+  "textures": {
+    "layer0": "masterangler:item/bamboo_fishing_rod"
+  },
+  "overrides": [
+    {
+      "predicate": { "masterangler:cast": 1 },
+      "model": "masterangler:item/bamboo_fishing_rod_cast"
+    }
+  ]
+}

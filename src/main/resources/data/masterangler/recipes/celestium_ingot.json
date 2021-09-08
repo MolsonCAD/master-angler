@@ -1,0 +1,34 @@
+{
+  "_comment": "copper ingot in 1.17+",
+  "type": "minecraft:crafting_shapeless",
+  "group": "celestium_ingot",
+  "ingredients": [
+    {
+      "item": "masterangler:celestium_fragment"
+    },
+    {
+      "item": "masterangler:celestium_fragment"
+    },
+    {
+      "item": "masterangler:celestium_fragment"
+    },
+    {
+      "item": "masterangler:celestium_fragment"
+    },
+    {
+      "item": "minecraft:gold_ingot"
+    },
+    {
+      "item": "minecraft:gold_ingot"
+    },
+    {
+      "item": "minecraft:gold_ingot"
+    },
+    {
+      "item": "minecraft:gold_ingot"
+    }
+  ],
+  "result": {
+    "item": "masterangler:celestium_ingot"
+  }
+}

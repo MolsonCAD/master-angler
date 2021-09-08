@@ -6,12 +6,12 @@ import net.minecraft.util.SoundEvent;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MASoundEvents
 {
-    private static final Set<SoundEvent> SOUND_EVENTS = new HashSet<>();
+    private static final List<SoundEvent> SOUND_EVENTS = new ArrayList<>();
 
     public static final SoundEvent REELING = create("reeling");
 
