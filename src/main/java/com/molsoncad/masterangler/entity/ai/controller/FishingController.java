@@ -60,9 +60,16 @@ public class FishingController
 
     public void setFish(@Nullable AbstractFishEntity fish)
     {
-        behavior = fish == null ? null : FishingBehaviorFactories.createFromInstance(fish);
-        stamina = 1.0F;
-        tension = 0.2F;
+        if (fish == null)
+        {
+            behavior = null;
+        }
+        else
+        {
+            behavior = FishingBehaviorFactories.createFromInstance(fish);
+            stamina = 1.0F;
+            tension = 0.2F;
+        }
     }
 
     public boolean canBeCaught()

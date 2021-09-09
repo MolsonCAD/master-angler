@@ -184,7 +184,6 @@ public class MasterFishingBobberEntity extends FishingBobberEntity implements IE
     public int retrieve(ItemStack stack)
     {
         PlayerEntity player = getPlayerOwner();
-        int damage = 0;
 
         if (!level.isClientSide() && player != null)
         {
@@ -204,16 +203,16 @@ public class MasterFishingBobberEntity extends FishingBobberEntity implements IE
                 player.level.addFreshEntity(orb);
                 player.awardStat(Stats.FISH_CAUGHT);
 
-                damage = 1;
                 remove();
+                return 1;
             }
             else
             {
-                return super.retrieve(stack);
+                return Math.max(super.retrieve(stack), fishingController.getTension() >= 1.0F ? 1 : 0);
             }
         }
 
-        return damage;
+        return 0;
     }
 
     /**
