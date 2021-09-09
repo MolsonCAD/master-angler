@@ -191,13 +191,14 @@ public class MasterFishingBobberEntity extends FishingBobberEntity implements IE
             {
                 IFishingProperties properties = (IFishingProperties) target;
                 ExperienceOrbEntity orb = new ExperienceOrbEntity(player.level, player.getX(), player.getY() + 0.5, player.getZ() + 0.5, getExperience());
+                Vector3d destination = player.position().add(0.0, player.isPassenger() ? 0.5 : 0.0, 0.0);
                 double gravity = target.hasEffect(Effects.SLOW_FALLING) ? target.getAttributeBaseValue(ForgeMod.ENTITY_GRAVITY.get()) : target.getAttributeValue(ForgeMod.ENTITY_GRAVITY.get());
                 double decayXZ = 0.91;
                 double decayY = 0.98;
 
                 CriteriaTriggers.FISHING_ROD_HOOKED.trigger((ServerPlayerEntity) player, stack, this, DUMMY_LOOT);
 
-                target.setDeltaMovement(getLaunch(player.position(), decayXZ, decayY, gravity));
+                target.setDeltaMovement(getLaunch(destination, decayXZ, decayY, gravity));
                 properties.setCaught(true);
                 properties.setLuck(luck);
                 player.level.addFreshEntity(orb);
